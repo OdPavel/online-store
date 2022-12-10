@@ -9,7 +9,7 @@ function Header() {
     <div className="header">
       <div className="container">
         <Link to="/" className="header__logo">
-          <img width="38" src="./img/pizza-logo.svg" alt="Pizza logo" />
+          {/* <img width="38" src="./img/pizza-logo.svg" alt="Pizza logo" /> */}
           <div>
             <h1>Інтернет магазин</h1>
             <p>Справжнiй УКРАЇНЕЦЬ</p>

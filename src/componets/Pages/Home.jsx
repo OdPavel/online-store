@@ -15,6 +15,7 @@ import {
   setCurrentPage,
   setFilters,
 } from '../../redux/slices/filterSlice';
+import { setItems } from '../../redux/slices/requestSlice';
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -22,10 +23,10 @@ export const Home = () => {
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
+  const items = useSelector((state) => state.request.items);
   const { categoryId, sortType, currentPage } = useSelector((state) => state.filter);
 
   const { searchValue } = React.useContext(SearchContext);
-  const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [categoryName, setCategoryName] = React.useState('');
 
@@ -50,11 +51,16 @@ export const Home = () => {
     //     setIsLoading(false);
     //   });
 
-    const res = await axios.get(
-      `https://636a9404c07d8f936da23cbd.mockapi.io/thincks?${categoryChange}&sortBy=${sortType.sortProperty}&page=${currentPage}&limit=4&${search}&order=acs`,
-    );
-    setData(res.data);
-    setIsLoading(false);
+    try {
+      const { data } = await axios.get(
+        `https://636a9404c07d8f936da23cbd.mockapi.io/thincks?${categoryChange}&sortBy=${sortType.sortProperty}&page=${currentPage}&limit=4&${search}&order=acs`,
+      );
+      dispatch(setItems(data));
+    } catch (error) {
+      console.log('ERROR', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const categoryChange = categoryId > 0 ? `category=${categoryId}` : '';
@@ -92,7 +98,7 @@ export const Home = () => {
 
   const skileton = [...new Array(8)].map((_, i) => <Skeleton key={i} />);
 
-  const dataRender = data.map((item) => <ThingsBlock key={item.id} {...item} />);
+  const dataRender = items.map((item) => <ThingsBlock key={item.id} {...item} />);
 
   // поиск по статичному массиву
 
