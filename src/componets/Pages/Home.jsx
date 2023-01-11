@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
 import Categories from '../Categories';
@@ -15,7 +14,7 @@ import {
   setCurrentPage,
   setFilters,
 } from '../../redux/slices/filterSlice';
-import { setItems } from '../../redux/slices/requestSlice';
+import { fetchRequestThinck } from '../../redux/slices/requestSlice';
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -23,11 +22,10 @@ export const Home = () => {
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
-  const items = useSelector((state) => state.request.items);
+  const { items, status } = useSelector((state) => state.request);
   const { categoryId, sortType, currentPage } = useSelector((state) => state.filter);
 
   const { searchValue } = React.useContext(SearchContext);
-  const [isLoading, setIsLoading] = React.useState(true);
   const [categoryName, setCategoryName] = React.useState('');
 
   const onClickCategory = (id, categories) => {
@@ -40,27 +38,14 @@ export const Home = () => {
   };
 
   const fetchRequest = async () => {
-    setIsLoading(true);
-
-    // await axios
-    //   .get(
-    //     `https://636a9404c07d8f936da23cbd.mockapi.io/thincks?${categoryChange}&sortBy=${sortType.sortProperty}&page=${currentPage}&limit=4&${search}&order=acs`,
-    //   )
-    //   .then((res) => {
-    //     setData(res.data);
-    //     setIsLoading(false);
-    //   });
-
-    try {
-      const { data } = await axios.get(
-        `https://636a9404c07d8f936da23cbd.mockapi.io/thincks?${categoryChange}&sortBy=${sortType.sortProperty}&page=${currentPage}&limit=4&${search}&order=acs`,
-      );
-      dispatch(setItems(data));
-    } catch (error) {
-      console.log('ERROR', error);
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(
+      fetchRequestThinck({
+        categoryChange,
+        sortType,
+        currentPage,
+        search,
+      }),
+    );
   };
 
   const categoryChange = categoryId > 0 ? `category=${categoryId}` : '';
@@ -118,7 +103,15 @@ export const Home = () => {
         <Sort value={sortType} onChangeSort={(i) => dispatch(setSortType(i))} />
       </div>
       <h2 className="content__title">{categoryName}</h2>
-      <div className="content__items">{isLoading ? skileton : dataRender}</div>
+      {status === 'error' ? (
+        <div>
+          <h2>Произошла ошибка 😕</h2>
+          <p>Не удалось получить ответ от сервера.</p>
+        </div>
+      ) : (
+        <div className="content__items">{status === 'loading' ? skileton : dataRender}</div>
+      )}
+
       <Pagination currentPage={currentPage} onChangePage={onChangePage} />
     </>
   );
