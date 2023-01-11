@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchRequestThinck = createAsyncThunk('request/fetchStatus', async (params) => {
   const { categoryChange, sortType, currentPage, search } = params;
   const { data } = await axios.get(
-    `https://-636a9404c07d8f936da23cbd.mockapi.io/thincks?${categoryChange}&sortBy=${sortType.sortProperty}&page=${currentPage}&limit=4&${search}&order=acs`,
+    `https://636a9404c07d8f936da23cbd.mockapi.io/thincks?${categoryChange}&sortBy=${sortType.sortProperty}&page=${currentPage}&limit=4&${search}&order=acs`,
   );
   return data;
 });
